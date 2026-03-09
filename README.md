@@ -69,33 +69,31 @@ Results are printed to the terminal and saved to `results/`.
 
 ## Results
 
-Benchmark run on 2026-03-09, 2 runs per approach, same filesystem task (list directory, read file, write summary file). MCP is tested two ways: filtered to the same 3 tools (fair apples-to-apples) and unfiltered with all 14 tools (real-world MCP usage).
+Benchmark run on 2026-03-09, 2 runs per approach, same filesystem task (list directory, read file, write summary file). All approaches expose the same 3 tools for a fair apples-to-apples comparison.
 
 ### Claude (Sonnet 4)
 
-| Metric | Direct (Pydantic) | CLI (subprocess) | MCP (3 tools) | MCP (all 14 tools) |
-|--------|-------------------|-------------------|---------------|---------------------|
-| Tool definition tokens | 203 | 186 | 461 | 2,044 |
-| Avg tool call latency | 1.8 ms | 28.8 ms | 4.6 ms | 3.5 ms |
-| Avg total task time | 10.8 s | 10.3 s | 10.0 s | 11.0 s |
-| Avg API input tokens | 3,447 | 3,360 | 4,373 | 10,897 |
-|   ↳ cached | 0 | 0 | 0 | 7,945 |
-| Avg API output tokens | 490 | 482 | 495 | 501 |
-| Avg API turns | 4 | 4 | 4 | 4 |
-| Avg tool calls | 3 | 3 | 3 | 3 |
+| Metric | Direct (Pydantic) | CLI (subprocess) | MCP |
+|--------|-------------------|-------------------|-----|
+| Tool definition tokens | 203 | 186 | 461 |
+| Avg tool call latency | 1.8 ms | 28.8 ms | 4.6 ms |
+| Avg total task time | 10.8 s | 10.3 s | 10.0 s |
+| Avg API input tokens | 3,447 | 3,360 | 4,373 |
+| Avg API output tokens | 490 | 482 | 495 |
+| Avg API turns | 4 | 4 | 4 |
+| Avg tool calls | 3 | 3 | 3 |
 
 ### GPT-4o
 
-| Metric | Direct (Pydantic) | CLI (subprocess) | MCP (3 tools) | MCP (all 14 tools) |
-|--------|-------------------|-------------------|---------------|---------------------|
-| Tool definition tokens | 227 | 210 | 485 | 2,156 |
-| Avg tool call latency | 2.8 ms | 26.9 ms | 3.3 ms | 3.4 ms |
-| Avg total task time | 3.8 s | 3.6 s | 3.6 s | 4.6 s |
-| Avg API input tokens | 1,206 | 1,164 | 1,877 | 5,321 |
-|   ↳ cached | 0 | 0 | 0 | 3,264 |
-| Avg API output tokens | 204 | 209 | 210 | 206 |
-| Avg API turns | 4 | 4 | 4 | 4 |
-| Avg tool calls | 3 | 3 | 3 | 3 |
+| Metric | Direct (Pydantic) | CLI (subprocess) | MCP |
+|--------|-------------------|-------------------|-----|
+| Tool definition tokens | 227 | 210 | 485 |
+| Avg tool call latency | 2.8 ms | 26.9 ms | 3.3 ms |
+| Avg total task time | 3.8 s | 3.6 s | 3.6 s |
+| Avg API input tokens | 1,206 | 1,164 | 1,877 |
+| Avg API output tokens | 204 | 209 | 210 |
+| Avg API turns | 4 | 4 | 4 |
+| Avg tool calls | 3 | 3 | 3 |
 
 ### Cross-LLM Comparison (Direct approach)
 
@@ -103,57 +101,39 @@ Benchmark run on 2026-03-09, 2 runs per approach, same filesystem task (list dir
 |--------|-----------------|--------|
 | Avg total task time | 10.8 s | 3.8 s |
 | Avg API input tokens | 3,447 | 1,206 |
-|   ↳ cached | 0 | 0 |
 | Avg API output tokens | 490 | 204 |
 | Avg API turns | 4 | 4 |
 | Avg tool calls | 3 | 3 |
 
 ### Analysis
 
-All runs completed the same task with the same behavior: 4 API turns, 3 tool calls (list, read, write). No errors, no retries. This isolates pure overhead differences.
+All runs completed the same task with identical behavior: 4 API turns, 3 tool calls (list, read, write). No errors, no retries.
 
-**1. MCP protocol overhead is modest with matched tools**
+**1. MCP overhead exists but isn't dramatic**
 
-With the same 3 tools, MCP adds some cost but not dramatic:
+With the same 3 tools, MCP adds measurable but modest cost:
 
-- **2.3x more tool definition tokens** (461 vs 203) — MCP schemas include richer metadata (annotations, readOnlyHint, etc.)
-- **27% more API input tokens** with Claude (4,373 vs 3,447)
-- **No meaningful difference in end-to-end time** (10.0s vs 10.8s) — within noise
+- **~2x more tool definition tokens** (461 vs 203) — MCP schemas include richer metadata (annotations, readOnlyHint, etc.)
+- **~27% more API input tokens** with Claude (4,373 vs 3,447)
+- **No meaningful difference in end-to-end time** — within noise for both LLMs
 
-The protocol overhead exists but is small when tool counts are matched.
+All three approaches (Direct, CLI, MCP) produce the same task behavior and comparable wall-clock times. The integration method doesn't matter much — LLM response latency dominates.
 
-**2. Unfiltered MCP is where the real cost hides**
+**2. Claude and GPT-4o differ significantly**
 
-In practice, MCP servers expose their full tool surface. The filesystem server sends 14 tools when you only need 3:
+This is the more interesting finding. With identical task behavior (same turns, same tool calls), GPT-4o completes in ~3.8s vs Claude's ~10.8s — nearly **3x faster**. The gap shows up across every metric:
 
-- **10x more tool definition tokens** (2,044 vs 203)
-- **3.2x more API input tokens** with Claude (10,897 vs 3,447)
-- **4.4x more API input tokens** with GPT (5,321 vs 1,206)
+- **2.9x more input tokens** with Claude (3,447 vs 1,206) — same 3 tool definitions, same conversation, but Claude's message format is significantly more verbose
+- **2.4x more output tokens** (490 vs 204) — Claude generates longer responses for the same task
+- **~3x slower end-to-end** — a combination of higher per-turn latency and more tokens to process
 
-End-to-end time stays comparable because tool definitions are a fixed cost per turn, and with only 4 turns the absolute overhead is small. In longer agentic conversations (10-20 turns), this compounds significantly.
-
-**3. Direct and CLI are equivalent**
-
-Both send the same 3 tool schemas and produce identical behavior (4 turns, 3 calls). CLI pays ~30ms per subprocess spawn, but this is invisible in total task time because LLM response time dominates.
-
-**4. GPT-4o is ~3x faster than Claude per task**
-
-With identical task behavior (same turns, same tool calls), GPT-4o consistently completes in ~3.8s vs Claude's ~10.8s. The difference comes from:
-
-- **Lower per-turn latency** — GPT responds faster per API call
-- **More concise output** — 204 vs 490 output tokens (half the verbosity)
-- **Fewer input tokens** — 1,206 vs 3,447 (GPT's message format is more compact)
-
-Both complete the task correctly with the same number of steps.
+Both models complete the task correctly with the same number of steps. The difference is pure efficiency: GPT-4o's message encoding is more compact and its responses are more concise. For tool-heavy agentic workloads where you're paying per-token and per-second, this gap compounds.
 
 ### Takeaway
 
-MCP has two distinct costs:
+**MCP vs Direct**: MCP adds ~2x tool definition tokens due to richer schemas, but the impact on total cost and latency is modest. Pick your integration approach based on architecture (same-process vs cross-boundary), not performance.
 
-1. **Protocol overhead** (~2x tool definition tokens with matched tools) — MCP schemas carry richer metadata. Impact on total cost is modest for short tasks.
-2. **Tool surface bloat** (~10x tool definition tokens in practice) — MCP servers expose everything, and you pay for every tool on every turn. This is where the real cost hides, especially in longer conversations. Prompt caching mitigates this (both providers cache tool definitions automatically or with simple opt-in), but the initial cost and schema complexity remain.
-
-For same-process tools you control, direct Pydantic calls are leaner. Use MCP where it adds value: cross-boundary communication, third-party tool providers, and plugin marketplaces.
+**Claude vs GPT-4o**: The bigger surprise is the cross-LLM gap. GPT-4o uses ~3x fewer input tokens and ~2.4x fewer output tokens for the same task, resulting in ~3x faster completion. For token-heavy agentic workloads, the choice of LLM matters more than the choice of tool integration.
 
 ## When to Use What
 
