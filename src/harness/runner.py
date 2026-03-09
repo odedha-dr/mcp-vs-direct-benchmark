@@ -127,7 +127,12 @@ async def _run_anthropic(client, model, tool_defs, prompt, all_call_latencies, p
         "total_cache_read_tokens": total_cache_read,
     }
 
-    return total_input, total_output, total_time, trace
+    # Normalize: Anthropic's input_tokens excludes cached tokens.
+    # Total tokens sent = input_tokens + cache_creation + cache_read.
+    total_all_input = total_input + total_cache_creation + total_cache_read
+    total_cached_input = total_cache_read
+
+    return total_all_input, total_cached_input, total_output, total_time, trace
 
 
 async def _run_openai(client, model, tool_defs, prompt, all_call_latencies, provider):
@@ -205,7 +210,11 @@ async def _run_openai(client, model, tool_defs, prompt, all_call_latencies, prov
         "total_cached_tokens": total_cached,
     }
 
-    return total_input, total_output, total_time, trace
+    # Normalize: OpenAI's prompt_tokens already includes cached tokens.
+    total_all_input = total_input
+    total_cached_input = total_cached
+
+    return total_all_input, total_cached_input, total_output, total_time, trace
 
 
 def _avg(values: list) -> float:
@@ -235,40 +244,28 @@ async def run_benchmark(
     all_call_latencies = []
     all_total_times = []
     all_input_tokens = []
+    all_cached_tokens = []
     all_output_tokens = []
     all_traces = []
 
     for _ in range(runs):
-        total_input, total_output, total_time, trace = await run_fn(
+        total_input, total_cached, total_output, total_time, trace = await run_fn(
             client, model, tool_defs, prompt, all_call_latencies, provider
         )
         all_total_times.append(total_time)
         all_input_tokens.append(total_input)
+        all_cached_tokens.append(total_cached)
         all_output_tokens.append(total_output)
         all_traces.append(trace)
 
-    result = {
+    return {
         "tool_definition_tokens": tool_def_tokens,
         "avg_call_latency_ms": _avg(all_call_latencies),
         "avg_total_time_s": _avg(all_total_times),
         "avg_api_input_tokens": _avg(all_input_tokens),
+        "avg_cached_input_tokens": _avg(all_cached_tokens),
         "avg_api_output_tokens": _avg(all_output_tokens),
         "avg_api_turns": _avg([t["api_turns"] for t in all_traces]),
         "avg_tool_calls": _avg([t["total_tool_calls"] for t in all_traces]),
         "traces": all_traces,
     }
-
-    # Add cache metrics based on provider
-    if llm == "anthropic":
-        result["avg_cache_creation_tokens"] = _avg(
-            [t["total_cache_creation_tokens"] for t in all_traces]
-        )
-        result["avg_cache_read_tokens"] = _avg(
-            [t["total_cache_read_tokens"] for t in all_traces]
-        )
-    else:
-        result["avg_cached_tokens"] = _avg(
-            [t["total_cached_tokens"] for t in all_traces]
-        )
-
-    return result

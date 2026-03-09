@@ -78,39 +78,39 @@ Benchmark run on 2026-03-09, 2 runs per approach, same filesystem task (list dir
 | Metric | Direct (Pydantic) | CLI (subprocess) | MCP (3 tools) | MCP (all 14 tools) |
 |--------|-------------------|-------------------|---------------|---------------------|
 | Tool definition tokens | 203 | 186 | 461 | 2,044 |
-| Avg tool call latency | 1.7 ms | 30.7 ms | 4.4 ms | 4.7 ms |
-| Avg total task time | 11.5 s | 10.5 s | 10.2 s | 11.2 s |
-| Avg API input tokens | 3,458 | 3,366 | 4,373 | 1,805 |
-| Avg API output tokens | 485 | 502 | 481 | 491 |
+| Avg tool call latency | 1.8 ms | 28.8 ms | 4.6 ms | 3.5 ms |
+| Avg total task time | 10.8 s | 10.3 s | 10.0 s | 11.0 s |
+| Avg API input tokens | 3,447 | 3,360 | 4,373 | 10,897 |
+|   ↳ cached | 0 | 0 | 0 | 7,945 |
+| Avg API output tokens | 490 | 482 | 495 | 501 |
 | Avg API turns | 4 | 4 | 4 | 4 |
 | Avg tool calls | 3 | 3 | 3 | 3 |
-| Cache creation tokens | 0 | 0 | 0 | 1,135 |
-| Cache read tokens | 0 | 0 | 0 | 7,945 |
 
-Prompt caching is enabled (via `cache_control` on tool definitions). Direct, CLI, and MCP (3 tools) show zero caching because their tool definitions fall below Anthropic's 1,024-token minimum for cacheable prefixes. MCP (all 14 tools) at 2,044 tokens qualifies — the 2,270-token tool prefix is cached on turn 1 and read from cache on all subsequent turns, reducing `input_tokens` from ~2,489/turn to ~450/turn.
+Prompt caching is enabled (via `cache_control` on tool definitions). Direct, CLI, and MCP (3 tools) show zero caching because their tool definitions fall below Anthropic's 1,024-token minimum. MCP (all 14 tools) at 2,044 tokens qualifies — **73% of input tokens are served from cache**, with cached tokens billed at 10% of the normal rate.
 
 ### GPT-4o
 
 | Metric | Direct (Pydantic) | CLI (subprocess) | MCP (3 tools) | MCP (all 14 tools) |
 |--------|-------------------|-------------------|---------------|---------------------|
 | Tool definition tokens | 227 | 210 | 485 | 2,156 |
-| Avg tool call latency | 2.9 ms | 28.8 ms | 3.4 ms | 4.0 ms |
-| Avg total task time | 3.8 s | 4.4 s | 4.1 s | 4.2 s |
-| Avg API input tokens | 1,231 | 1,186 | 1,903 | 5,349 |
-| Avg API output tokens | 201 | 211 | 226 | 214 |
+| Avg tool call latency | 2.8 ms | 26.9 ms | 3.3 ms | 3.4 ms |
+| Avg total task time | 3.8 s | 3.6 s | 3.6 s | 4.6 s |
+| Avg API input tokens | 1,206 | 1,164 | 1,877 | 5,321 |
+|   ↳ cached | 0 | 0 | 0 | 3,264 |
+| Avg API output tokens | 204 | 209 | 210 | 206 |
 | Avg API turns | 4 | 4 | 4 | 4 |
 | Avg tool calls | 3 | 3 | 3 | 3 |
-| Cached tokens | 0 | 0 | 0 | 3,840 |
 
-OpenAI caches automatically (no opt-in needed). Similar to Claude, only MCP (all 14 tools) has a large enough prefix to trigger caching — ~1,150-1,400 tokens cached per turn starting from turn 2.
+OpenAI caches automatically (no opt-in needed). Only MCP (all 14 tools) has a large enough prefix to trigger caching — **61% of input tokens are served from cache**.
 
 ### Cross-LLM Comparison (Direct approach)
 
 | Metric | Claude Sonnet 4 | GPT-4o |
 |--------|-----------------|--------|
-| Avg total task time | 11.5 s | 3.8 s |
-| Avg API input tokens | 3,458 | 1,231 |
-| Avg API output tokens | 485 | 201 |
+| Avg total task time | 10.8 s | 3.8 s |
+| Avg API input tokens | 3,447 | 1,206 |
+|   ↳ cached | 0 | 0 |
+| Avg API output tokens | 490 | 204 |
 | Avg API turns | 4 | 4 |
 | Avg tool calls | 3 | 3 |
 
