@@ -18,6 +18,16 @@ METRICS = [
     ("Avg tool calls", "avg_tool_calls", ""),
 ]
 
+# Cache metrics vary by LLM provider — only shown when present in results
+CACHE_METRICS_ANTHROPIC = [
+    ("Avg cache creation tokens", "avg_cache_creation_tokens", ""),
+    ("Avg cache read tokens", "avg_cache_read_tokens", ""),
+]
+
+CACHE_METRICS_OPENAI = [
+    ("Avg cached tokens", "avg_cached_tokens", ""),
+]
+
 
 def format_results(results: dict) -> str:
     """Format benchmark results as markdown.
@@ -80,6 +90,19 @@ def _format_table(provider_results: dict) -> str:
         values = [f"{provider_results[p][key]:.1f}{suffix}" for p in providers]
         lines.append(f"| {label} | " + " | ".join(values) + " |")
 
+    # Add cache metrics if present in the results
+    first_result = next(iter(provider_results.values()))
+    cache_metrics = []
+    if "avg_cache_creation_tokens" in first_result:
+        cache_metrics = CACHE_METRICS_ANTHROPIC
+    elif "avg_cached_tokens" in first_result:
+        cache_metrics = CACHE_METRICS_OPENAI
+
+    for label, key, unit in cache_metrics:
+        suffix = f" {unit}" if unit else ""
+        values = [f"{provider_results[p].get(key, 0):.1f}{suffix}" for p in providers]
+        lines.append(f"| {label} | " + " | ".join(values) + " |")
+
     return "\n".join(lines)
 
 
@@ -119,5 +142,27 @@ def _format_cross_comparison(results: dict) -> str:
                 first_provider = next(iter(provider_results.values()))
                 values.append(f"{first_provider[key]:.1f}{suffix}")
         lines.append(f"| {label} (direct) | " + " | ".join(values) + " |")
+
+    # Add per-LLM cache metrics
+    for llm_name, provider_results in results.items():
+        direct = provider_results.get("direct", next(iter(provider_results.values())))
+        if "avg_cache_creation_tokens" in direct:
+            cache_metrics = CACHE_METRICS_ANTHROPIC
+        elif "avg_cached_tokens" in direct:
+            cache_metrics = CACHE_METRICS_OPENAI
+        else:
+            continue
+        for label, key, unit in cache_metrics:
+            suffix = f" {unit}" if unit else ""
+            values = []
+            for other_llm, other_results in results.items():
+                other_direct = other_results.get("direct", next(iter(other_results.values())))
+                val = other_direct.get(key, None)
+                if val is not None:
+                    values.append(f"{val:.1f}{suffix}")
+                else:
+                    values.append("N/A")
+            lines.append(f"| {label} (direct) | " + " | ".join(values) + " |")
+        break  # Only add cache rows once (they cover all LLMs in the row)
 
     return "\n".join(lines)

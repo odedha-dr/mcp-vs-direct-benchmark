@@ -24,12 +24,33 @@ def _to_openai_tools(tool_defs: list[dict]) -> list[dict]:
     return result
 
 
+def _extract_anthropic_cache(usage) -> dict:
+    """Extract cache metrics from Anthropic usage response."""
+    return {
+        "cache_creation_input_tokens": getattr(usage, "cache_creation_input_tokens", 0) or 0,
+        "cache_read_input_tokens": getattr(usage, "cache_read_input_tokens", 0) or 0,
+    }
+
+
+def _extract_openai_cache(usage) -> dict:
+    """Extract cache metrics from OpenAI usage response."""
+    cached = 0
+    if hasattr(usage, "prompt_tokens_details") and usage.prompt_tokens_details:
+        cached = getattr(usage.prompt_tokens_details, "cached_tokens", 0) or 0
+    return {
+        "cached_tokens": cached,
+    }
+
+
 async def _run_anthropic(client, model, tool_defs, prompt, all_call_latencies, provider):
     """Run one Anthropic agentic loop."""
     messages = [{"role": "user", "content": prompt}]
     total_input = 0
     total_output = 0
+    total_cache_creation = 0
+    total_cache_read = 0
     tool_calls_log = []
+    cache_per_turn = []
     api_turns = 0
     final_response = ""
     start_time = time.perf_counter()
@@ -46,8 +67,17 @@ async def _run_anthropic(client, model, tool_defs, prompt, all_call_latencies, p
         total_input += response.usage.input_tokens
         total_output += response.usage.output_tokens
 
+        cache = _extract_anthropic_cache(response.usage)
+        total_cache_creation += cache["cache_creation_input_tokens"]
+        total_cache_read += cache["cache_read_input_tokens"]
+        cache_per_turn.append({
+            "turn": api_turns,
+            "input_tokens": response.usage.input_tokens,
+            "output_tokens": response.usage.output_tokens,
+            **cache,
+        })
+
         if response.stop_reason != "tool_use":
-            # Extract final text response
             for block in response.content:
                 if hasattr(block, "text"):
                     final_response += block.text
@@ -86,6 +116,9 @@ async def _run_anthropic(client, model, tool_defs, prompt, all_call_latencies, p
         "total_tool_calls": len(tool_calls_log),
         "final_response_preview": final_response[:500],
         "final_response_length": len(final_response),
+        "cache_per_turn": cache_per_turn,
+        "total_cache_creation_tokens": total_cache_creation,
+        "total_cache_read_tokens": total_cache_read,
     }
 
     return total_input, total_output, total_time, trace
@@ -97,7 +130,9 @@ async def _run_openai(client, model, tool_defs, prompt, all_call_latencies, prov
     messages = [{"role": "user", "content": prompt}]
     total_input = 0
     total_output = 0
+    total_cached = 0
     tool_calls_log = []
+    cache_per_turn = []
     api_turns = 0
     final_response = ""
     start_time = time.perf_counter()
@@ -114,6 +149,15 @@ async def _run_openai(client, model, tool_defs, prompt, all_call_latencies, prov
         choice = response.choices[0]
         total_input += response.usage.prompt_tokens
         total_output += response.usage.completion_tokens
+
+        cache = _extract_openai_cache(response.usage)
+        total_cached += cache["cached_tokens"]
+        cache_per_turn.append({
+            "turn": api_turns,
+            "prompt_tokens": response.usage.prompt_tokens,
+            "completion_tokens": response.usage.completion_tokens,
+            **cache,
+        })
 
         if choice.finish_reason != "tool_calls":
             if choice.message.content:
@@ -151,9 +195,15 @@ async def _run_openai(client, model, tool_defs, prompt, all_call_latencies, prov
         "total_tool_calls": len(tool_calls_log),
         "final_response_preview": final_response[:500],
         "final_response_length": len(final_response),
+        "cache_per_turn": cache_per_turn,
+        "total_cached_tokens": total_cached,
     }
 
     return total_input, total_output, total_time, trace
+
+
+def _avg(values: list) -> float:
+    return sum(values) / len(values) if values else 0
 
 
 async def run_benchmark(
@@ -191,13 +241,28 @@ async def run_benchmark(
         all_output_tokens.append(total_output)
         all_traces.append(trace)
 
-    return {
+    result = {
         "tool_definition_tokens": tool_def_tokens,
-        "avg_call_latency_ms": sum(all_call_latencies) / max(len(all_call_latencies), 1),
-        "avg_total_time_s": sum(all_total_times) / len(all_total_times),
-        "avg_api_input_tokens": sum(all_input_tokens) / len(all_input_tokens),
-        "avg_api_output_tokens": sum(all_output_tokens) / len(all_output_tokens),
-        "avg_api_turns": sum(t["api_turns"] for t in all_traces) / len(all_traces),
-        "avg_tool_calls": sum(t["total_tool_calls"] for t in all_traces) / len(all_traces),
+        "avg_call_latency_ms": _avg(all_call_latencies),
+        "avg_total_time_s": _avg(all_total_times),
+        "avg_api_input_tokens": _avg(all_input_tokens),
+        "avg_api_output_tokens": _avg(all_output_tokens),
+        "avg_api_turns": _avg([t["api_turns"] for t in all_traces]),
+        "avg_tool_calls": _avg([t["total_tool_calls"] for t in all_traces]),
         "traces": all_traces,
     }
+
+    # Add cache metrics based on provider
+    if llm == "anthropic":
+        result["avg_cache_creation_tokens"] = _avg(
+            [t["total_cache_creation_tokens"] for t in all_traces]
+        )
+        result["avg_cache_read_tokens"] = _avg(
+            [t["total_cache_read_tokens"] for t in all_traces]
+        )
+    else:
+        result["avg_cached_tokens"] = _avg(
+            [t["total_cached_tokens"] for t in all_traces]
+        )
+
+    return result

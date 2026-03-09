@@ -28,6 +28,7 @@ Standalone Python scripts invoked via `asyncio.create_subprocess_exec`. Each too
 | **Per-call latency** | Wall-clock time from tool invocation to result |
 | **End-to-end task time** | Total time to complete a multi-step agent task |
 | **Total API tokens** | Input + output tokens consumed across the full task |
+| **Cache behavior** | How each provider's caching reduces repeated token costs |
 
 All three approaches execute the same task (file operations in a temp directory) with the same underlying tool implementations, so differences reflect pure integration overhead.
 
@@ -77,32 +78,35 @@ Benchmark run on 2026-03-09, 2 runs per approach, same filesystem task (list dir
 | Metric | Direct (Pydantic) | CLI (subprocess) | MCP (3 tools) | MCP (all 14 tools) |
 |--------|-------------------|-------------------|---------------|---------------------|
 | Tool definition tokens | 203 | 186 | 461 | 2,044 |
-| Avg tool call latency | 0.9 ms | 30.2 ms | 4.0 ms | 3.7 ms |
-| Avg total task time | 11.3 s | 10.4 s | 10.3 s | 10.6 s |
-| Avg API input tokens | 3,479 | 3,378 | 4,405 | 10,930 |
-| Avg API output tokens | 497 | 489 | 498 | 507 |
+| Avg tool call latency | 3.4 ms | 31.9 ms | 4.5 ms | 3.7 ms |
+| Avg total task time | 9.8 s | 10.0 s | 9.2 s | 10.3 s |
+| Avg API input tokens | 3,463 | 3,373 | 4,379 | 10,898 |
+| Avg API output tokens | 482 | 489 | 497 | 493 |
 | Avg API turns | 4 | 4 | 4 | 4 |
 | Avg tool calls | 3 | 3 | 3 | 3 |
+| Cache creation tokens | 0 | 0 | 0 | 0 |
+| Cache read tokens | 0 | 0 | 0 | 0 |
 
 ### GPT-4o
 
 | Metric | Direct (Pydantic) | CLI (subprocess) | MCP (3 tools) | MCP (all 14 tools) |
 |--------|-------------------|-------------------|---------------|---------------------|
 | Tool definition tokens | 227 | 210 | 485 | 2,156 |
-| Avg tool call latency | 2.1 ms | 29.7 ms | 3.2 ms | 3.8 ms |
-| Avg total task time | 3.8 s | 3.7 s | 3.2 s | 3.8 s |
-| Avg API input tokens | 1,232 | 1,185 | 1,698 | 5,349 |
-| Avg API output tokens | 246 | 225 | 226 | 216 |
-| Avg API turns | 4 | 4 | 3.5 | 4 |
+| Avg tool call latency | 2.4 ms | 31.3 ms | 3.3 ms | 3.3 ms |
+| Avg total task time | 4.8 s | 4.0 s | 3.4 s | 4.4 s |
+| Avg API input tokens | 1,245 | 1,193 | 1,910 | 5,356 |
+| Avg API output tokens | 245 | 218 | 228 | 217 |
+| Avg API turns | 4 | 4 | 4 | 4 |
 | Avg tool calls | 3 | 3 | 3 | 3 |
+| Cached tokens | 0 | 0 | 0 | 3,136 |
 
 ### Cross-LLM Comparison (Direct approach)
 
 | Metric | Claude Sonnet 4 | GPT-4o |
 |--------|-----------------|--------|
-| Avg total task time | 11.3 s | 3.8 s |
-| Avg API input tokens | 3,479 | 1,232 |
-| Avg API output tokens | 497 | 246 |
+| Avg total task time | 9.8 s | 4.8 s |
+| Avg API input tokens | 3,463 | 1,245 |
+| Avg API output tokens | 482 | 245 |
 | Avg API turns | 4 | 4 |
 | Avg tool calls | 3 | 3 |
 
@@ -134,15 +138,25 @@ End-to-end time stays comparable because tool definitions are a fixed cost per t
 
 Both send the same 3 tool schemas and produce identical behavior (4 turns, 3 calls). CLI pays ~30ms per subprocess spawn, but this is invisible in total task time because LLM response time dominates.
 
-**4. GPT-4o is ~3x faster than Claude per task**
+**4. GPT-4o is ~2x faster than Claude per task**
 
-With identical task behavior (same turns, same tool calls), GPT-4o consistently completes in ~3.8s vs Claude's ~11.3s. The difference comes from:
+With identical task behavior (same turns, same tool calls), GPT-4o consistently completes in ~4.8s vs Claude's ~9.8s. The difference comes from:
 
 - **Lower per-turn latency** — GPT responds faster per API call
-- **More concise output** — 246 vs 497 output tokens (half the verbosity)
-- **Fewer input tokens** — 1,232 vs 3,479 (GPT's message format is more compact)
+- **More concise output** — 245 vs 482 output tokens (half the verbosity)
+- **Fewer input tokens** — 1,245 vs 3,463 (GPT's message format is more compact)
 
 Both complete the task correctly with the same number of steps.
+
+**5. Caching behavior differs fundamentally between providers**
+
+The benchmark tracks prompt caching to understand the true cost of repeated tool definitions across turns:
+
+- **Anthropic (Claude)**: Reports zero cache hits across all runs. Anthropic's prompt caching requires explicit `cache_control` breakpoints in the request — it does not cache automatically. Without opting in, every turn pays the full cost of tool definitions. This means the 2,044-token tool definition overhead in "MCP (all tools)" is paid in full on every single API turn.
+
+- **OpenAI (GPT-4o)**: Automatic server-side caching kicks in, but only where the prefix is large enough. The "MCP (all tools)" variant (2,156 tool definition tokens) shows ~1,150-1,400 cached tokens on turns 2-4, meaning the static tool definition prefix gets cached within a conversation. Smaller tool sets (direct, CLI, MCP 3 tools) show zero caching — the prefix is too small to trigger OpenAI's automatic cache.
+
+**Implications**: For agents with many tools or long conversations, OpenAI's automatic caching partially offsets the MCP tool surface bloat. With Anthropic, you must explicitly opt into caching to get this benefit — otherwise tool definition tokens compound linearly with every turn.
 
 ### Takeaway
 
@@ -150,6 +164,11 @@ MCP has two distinct costs:
 
 1. **Protocol overhead** (~2x tool definition tokens with matched tools) — MCP schemas carry richer metadata. Impact on total cost is modest for short tasks.
 2. **Tool surface bloat** (~10x tool definition tokens in practice) — MCP servers expose everything, and you pay for every tool on every turn. This is where the real cost hides, especially in longer conversations.
+
+Caching can mitigate the tool surface bloat, but the mechanism differs:
+
+- **OpenAI** caches automatically when the prompt prefix is large enough (~1,024+ tokens). This means "MCP (all tools)" gets partial caching for free, reducing the per-turn cost of repeated tool definitions.
+- **Anthropic** requires explicit `cache_control` breakpoints. Without them, you pay full price on every turn. If you use MCP with many tools on Anthropic, enabling prompt caching on the tool definitions is critical to controlling cost.
 
 For same-process tools you control, direct Pydantic calls are leaner. Use MCP where it adds value: cross-boundary communication, third-party tool providers, and plugin marketplaces.
 
