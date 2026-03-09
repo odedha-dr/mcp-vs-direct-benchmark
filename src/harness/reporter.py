@@ -14,6 +14,8 @@ METRICS = [
     ("Avg total task time", "avg_total_time_s", "s"),
     ("Avg API input tokens", "avg_api_input_tokens", ""),
     ("Avg API output tokens", "avg_api_output_tokens", ""),
+    ("Avg API turns", "avg_api_turns", ""),
+    ("Avg tool calls", "avg_tool_calls", ""),
 ]
 
 

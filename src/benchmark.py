@@ -5,6 +5,7 @@ Usage: uv run python -m src.benchmark [--runs N] [--claude-model MODEL] [--opena
 """
 
 import asyncio
+import json
 import os
 import tempfile
 from datetime import datetime
@@ -117,11 +118,26 @@ async def _run(runs: int, claude_model: str, openai_model: str):
 
         results_dir = Path("results")
         results_dir.mkdir(exist_ok=True)
-        filename = results_dir / (
-            f"benchmark-{datetime.now().strftime('%Y-%m-%d-%H%M')}.md"
-        )
+        timestamp = datetime.now().strftime("%Y-%m-%d-%H%M")
+
+        filename = results_dir / f"benchmark-{timestamp}.md"
         filename.write_text(report)
         console.print(f"\nResults saved to [bold]{filename}[/bold]")
+
+        # Save detailed traces for analysis
+        traces = {}
+        for llm_label, provider_results in all_results.items():
+            traces[llm_label] = {}
+            for provider_name, data in provider_results.items():
+                traces[llm_label][provider_name] = {
+                    "avg_api_turns": data.get("avg_api_turns"),
+                    "avg_tool_calls": data.get("avg_tool_calls"),
+                    "traces": data.get("traces", []),
+                }
+
+        trace_file = results_dir / f"traces-{timestamp}.json"
+        trace_file.write_text(json.dumps(traces, indent=2, default=str))
+        console.print(f"Traces saved to [bold]{trace_file}[/bold]")
 
 
 if __name__ == "__main__":
