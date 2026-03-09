@@ -4,11 +4,23 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 
-class McpToolProvider:
-    """Tool provider that connects to the MCP filesystem server via stdio."""
+# The 3 tools we benchmark — matches direct/CLI tool surface
+FILTERED_TOOLS = {"read_text_file", "write_file", "list_directory"}
 
-    def __init__(self, allowed_dirs: list[str]):
+
+class McpToolProvider:
+    """Tool provider that connects to the MCP filesystem server via stdio.
+
+    Args:
+        allowed_dirs: Directories the MCP server can access.
+        filter_tools: If True (default), only expose the 3 tools that match
+            the direct/CLI providers for a fair comparison. If False, expose
+            all tools from the MCP server (shows real-world overhead).
+    """
+
+    def __init__(self, allowed_dirs: list[str], filter_tools: bool = True):
         self._allowed_dirs = allowed_dirs
+        self._filter_tools = filter_tools
         self._exit_stack = AsyncExitStack()
         self._session: ClientSession | None = None
         self._tools: list[dict] = []
@@ -29,6 +41,8 @@ class McpToolProvider:
         response = await self._session.list_tools()
         self._tools = []
         for tool in response.tools:
+            if self._filter_tools and tool.name not in FILTERED_TOOLS:
+                continue
             self._tools.append({
                 "name": tool.name,
                 "description": tool.description,

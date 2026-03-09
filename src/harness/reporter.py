@@ -4,6 +4,8 @@ PROVIDER_LABELS = {
     "direct": "Direct (Pydantic)",
     "cli": "CLI (subprocess)",
     "mcp": "MCP (stdio)",
+    "mcp (3 tools)": "MCP (3 tools)",
+    "mcp (all tools)": "MCP (all 14 tools)",
 }
 
 METRICS = [

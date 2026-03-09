@@ -85,7 +85,8 @@ async def _run(runs: int, claude_model: str, openai_model: str):
             providers = {
                 "direct": DirectToolProvider(),
                 "cli": CliToolProvider(),
-                "mcp": McpToolProvider(allowed_dirs=[tmp_dir]),
+                "mcp (3 tools)": McpToolProvider(allowed_dirs=[tmp_dir], filter_tools=True),
+                "mcp (all tools)": McpToolProvider(allowed_dirs=[tmp_dir], filter_tools=False),
             }
 
             llm_results = {}
