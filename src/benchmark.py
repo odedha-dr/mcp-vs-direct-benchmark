@@ -68,7 +68,10 @@ async def _run(runs: int, claude_model: str, openai_model: str):
     console.print(f"[bold]Detected LLMs:[/bold] {', '.join(llms.keys())}")
     console.print(f"[bold]Runs per approach:[/bold] {runs}\n")
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
+    with tempfile.TemporaryDirectory() as raw_tmp_dir:
+        # Resolve symlinks (macOS /var -> /private/var) so MCP server
+        # and prompt agree on the path. Avoids "access denied" errors.
+        tmp_dir = str(Path(raw_tmp_dir).resolve())
         hello_path = Path(tmp_dir) / "hello.txt"
         hello_path.write_text(
             "Hello from the benchmark! This file tests read operations."
