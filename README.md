@@ -38,53 +38,91 @@ All three approaches execute the same task (file operations in a temp directory)
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) package manager
 - Node.js (required by MCP server runtime)
-- Anthropic API key
+- Anthropic API key and/or OpenAI API key
 
 ### Setup
 
 ```bash
-git clone https://github.com/odedha/mcp-vs-direct-benchmark.git
+git clone https://github.com/odedha-dr/mcp-vs-direct-benchmark.git
 cd mcp-vs-direct-benchmark
 
 cp .env.example .env
-# Add your ANTHROPIC_API_KEY to .env
+# Add ANTHROPIC_API_KEY and/or OPENAI_API_KEY to .env
 
-uv sync
+uv sync --group dev
 ```
 
 ### Run
 
 ```bash
-uv run python -m src.benchmark
+uv run python -m src.benchmark           # default: 3 runs per approach
+uv run python -m src.benchmark --runs 2  # faster: 2 runs
 ```
 
-Results are printed to the terminal as a comparison table.
+The benchmark auto-detects which API keys are present and runs Claude, GPT, or both.
+
+```bash
+# Override models
+uv run python -m src.benchmark --claude-model claude-sonnet-4-20250514 --openai-model gpt-4o-mini
+```
+
+Results are printed to the terminal and saved to `results/`.
 
 ## Results
 
-Benchmark run on 2026-03-09, 2 runs per approach, Claude Sonnet, same filesystem task (list directory, read file, write file).
+Benchmark run on 2026-03-09, 2 runs per approach, same filesystem task (list directory, read file, write summary file).
 
-### Raw Numbers
+### Claude (Sonnet 4)
 
 | Metric | Direct (Pydantic) | CLI (subprocess) | MCP (stdio) |
 |--------|-------------------|-------------------|-------------|
 | Tool definition tokens | 203 | 186 | 2,044 |
-| Avg tool call latency | 2.3 ms | 77.7 ms | 2.7 ms |
-| Avg total task time | 10.1 s | 10.3 s | 16.1 s |
-| Avg API input tokens | 3,439 | 3,345 | 17,426 |
-| Avg API output tokens | 475 | 479 | 653 |
+| Avg tool call latency | 2.0 ms | 33.5 ms | 3.0 ms |
+| Avg total task time | 11.8 s | 9.6 s | 15.3 s |
+| Avg API input tokens | 3,413 | 3,318 | 17,354 |
+| Avg API output tokens | 476 | 480 | 646 |
+
+### GPT-4o
+
+| Metric | Direct (Pydantic) | CLI (subprocess) | MCP (stdio) |
+|--------|-------------------|-------------------|-------------|
+| Tool definition tokens | 227 | 210 | 2,156 |
+| Avg tool call latency | 1.8 ms | 29.0 ms | 3.0 ms |
+| Avg total task time | 6.0 s | 3.5 s | 2.0 s |
+| Avg API input tokens | 1,199 | 1,152 | 2,563 |
+| Avg API output tokens | 204 | 212 | 83 |
+
+### Cross-LLM Comparison (Direct approach)
+
+| Metric | Claude Sonnet 4 | GPT-4o |
+|--------|-----------------|--------|
+| Avg total task time | 11.8 s | 6.0 s |
+| Avg API input tokens | 3,413 | 1,199 |
+| Avg API output tokens | 476 | 204 |
 
 ### Analysis
 
-**The overhead isn't where most people expect.**
+**1. The real MCP cost is token bloat, not protocol latency**
 
-MCP's JSON-RPC protocol latency is negligible (2.7ms per call — comparable to direct). The real cost is **token bloat**. The MCP filesystem server exposes 14 tools, and all of their schemas are sent to the LLM on every turn — even though we only need 3. This results in:
+MCP's JSON-RPC overhead is negligible — 3.0ms per call, comparable to direct (2.0ms). The actual cost is that the MCP filesystem server exposes **14 tools**, and all of their schemas are sent to the LLM on every API call, even though we only need 3. This results in:
 
-- **10x more tokens** in tool definitions (2,044 vs 203)
-- **5x more API input tokens** per task (17,426 vs 3,439)
-- **60% longer end-to-end time** (16.1s vs 10.1s) — the extra time is Claude processing larger prompts, not protocol overhead
+- **10x more tokens** in tool definitions (2,044 vs 203 for Claude)
+- **5x more API input tokens** per task with Claude (17,354 vs 3,413)
+- **30% longer end-to-end time** with Claude (15.3s vs 11.8s)
 
-Direct and CLI have nearly identical token costs because they send exactly the same 3 tool schemas. CLI's per-call latency is higher (77.7ms vs 2.3ms) due to subprocess spawning, but this is invisible in total task time because LLM response time dominates.
+This is a per-turn cost. In a 10-turn agentic conversation, the overhead compounds.
+
+**2. Direct and CLI are nearly identical in token cost**
+
+Both send exactly the 3 tool schemas we defined. The only difference is execution overhead: CLI pays ~30ms per subprocess spawn, but this is invisible in total task time because LLM response time dominates.
+
+**3. GPT-4o is faster but less thorough**
+
+GPT-4o completed tasks in roughly half the time of Claude, using significantly fewer tokens. However, GPT's MCP run (2.0s, 83 output tokens) suggests it may have taken shortcuts — completing the task with fewer tool calls or less detailed output. Claude consistently used all tools and produced thorough summaries.
+
+**4. Both LLMs show the same MCP overhead pattern**
+
+Despite different absolute numbers, the ratio holds: MCP tool definitions are ~10x larger than direct, and API input tokens scale accordingly. The overhead is structural (MCP servers expose everything) rather than model-specific.
 
 ### Takeaway
 
