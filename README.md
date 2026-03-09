@@ -62,7 +62,33 @@ Results are printed to the terminal as a comparison table.
 
 ## Results
 
-Results will be added after the first benchmark run. Run it yourself to see the numbers.
+Benchmark run on 2026-03-09, 2 runs per approach, Claude Sonnet, same filesystem task (list directory, read file, write file).
+
+### Raw Numbers
+
+| Metric | Direct (Pydantic) | CLI (subprocess) | MCP (stdio) |
+|--------|-------------------|-------------------|-------------|
+| Tool definition tokens | 203 | 186 | 2,044 |
+| Avg tool call latency | 2.3 ms | 77.7 ms | 2.7 ms |
+| Avg total task time | 10.1 s | 10.3 s | 16.1 s |
+| Avg API input tokens | 3,439 | 3,345 | 17,426 |
+| Avg API output tokens | 475 | 479 | 653 |
+
+### Analysis
+
+**The overhead isn't where most people expect.**
+
+MCP's JSON-RPC protocol latency is negligible (2.7ms per call — comparable to direct). The real cost is **token bloat**. The MCP filesystem server exposes 14 tools, and all of their schemas are sent to the LLM on every turn — even though we only need 3. This results in:
+
+- **10x more tokens** in tool definitions (2,044 vs 203)
+- **5x more API input tokens** per task (17,426 vs 3,439)
+- **60% longer end-to-end time** (16.1s vs 10.1s) — the extra time is Claude processing larger prompts, not protocol overhead
+
+Direct and CLI have nearly identical token costs because they send exactly the same 3 tool schemas. CLI's per-call latency is higher (77.7ms vs 2.3ms) due to subprocess spawning, but this is invisible in total task time because LLM response time dominates.
+
+### Takeaway
+
+For same-process tools, MCP adds cost without benefit. The protocol itself is fast, but MCP servers expose their full tool surface — and you pay for every token on every turn. Use MCP where it shines (cross-boundary communication, third-party tools, plugin marketplaces) and direct calls where it doesn't (internal tools you control).
 
 ## When to Use What
 

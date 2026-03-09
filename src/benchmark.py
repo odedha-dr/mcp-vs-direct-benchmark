@@ -6,6 +6,10 @@ Usage: uv run python -m src.benchmark [--runs N] [--model MODEL]
 
 import asyncio
 import tempfile
+
+from dotenv import load_dotenv
+
+load_dotenv()
 from datetime import datetime
 from pathlib import Path
 
