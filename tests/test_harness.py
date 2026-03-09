@@ -14,32 +14,48 @@ def test_estimate_tokens_dict():
     assert count > 0
 
 
-def test_format_results():
+SAMPLE_PROVIDER_RESULTS = {
+    "direct": {
+        "tool_definition_tokens": 100,
+        "avg_call_latency_ms": 0.5,
+        "avg_total_time_s": 3.2,
+        "avg_api_input_tokens": 500,
+        "avg_api_output_tokens": 200,
+    },
+    "cli": {
+        "tool_definition_tokens": 100,
+        "avg_call_latency_ms": 15.0,
+        "avg_total_time_s": 4.1,
+        "avg_api_input_tokens": 500,
+        "avg_api_output_tokens": 200,
+    },
+    "mcp": {
+        "tool_definition_tokens": 150,
+        "avg_call_latency_ms": 25.0,
+        "avg_total_time_s": 5.5,
+        "avg_api_input_tokens": 550,
+        "avg_api_output_tokens": 200,
+    },
+}
+
+
+def test_format_results_legacy():
+    """Test legacy flat format (single LLM)."""
+    md = format_results(SAMPLE_PROVIDER_RESULTS)
+    assert "Direct" in md
+    assert "MCP" in md
+    assert "CLI" in md
+    assert "|" in md
+
+
+def test_format_results_multi_llm():
+    """Test multi-LLM nested format."""
     results = {
-        "direct": {
-            "tool_definition_tokens": 100,
-            "avg_call_latency_ms": 0.5,
-            "avg_total_time_s": 3.2,
-            "avg_api_input_tokens": 500,
-            "avg_api_output_tokens": 200,
-        },
-        "cli": {
-            "tool_definition_tokens": 100,
-            "avg_call_latency_ms": 15.0,
-            "avg_total_time_s": 4.1,
-            "avg_api_input_tokens": 500,
-            "avg_api_output_tokens": 200,
-        },
-        "mcp": {
-            "tool_definition_tokens": 150,
-            "avg_call_latency_ms": 25.0,
-            "avg_total_time_s": 5.5,
-            "avg_api_input_tokens": 550,
-            "avg_api_output_tokens": 200,
-        },
+        "Claude (claude-sonnet-4-20250514)": SAMPLE_PROVIDER_RESULTS,
+        "GPT (gpt-4o)": SAMPLE_PROVIDER_RESULTS,
     }
     md = format_results(results)
-    assert "direct" in md.lower() or "Direct" in md
-    assert "mcp" in md.lower() or "MCP" in md
-    assert "cli" in md.lower() or "CLI" in md
+    assert "Claude" in md
+    assert "GPT" in md
+    assert "Cross-LLM" in md
     assert "|" in md

@@ -1,17 +1,18 @@
 """
 MCP vs Direct vs CLI Benchmark
 
-Usage: uv run python -m src.benchmark [--runs N] [--model MODEL]
+Usage: uv run python -m src.benchmark [--runs N] [--claude-model MODEL] [--openai-model MODEL]
 """
 
 import asyncio
+import os
 import tempfile
+from datetime import datetime
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 load_dotenv()
-from datetime import datetime
-from pathlib import Path
 
 import typer
 from rich.console import Console
@@ -30,18 +31,42 @@ PROMPT = (
     "then write a file called summary.txt containing a one-line summary of what you found."
 )
 
+DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-20250514"
+DEFAULT_OPENAI_MODEL = "gpt-4o"
+
+
+def _detect_llms(claude_model: str, openai_model: str) -> dict[str, tuple[str, str]]:
+    """Detect available LLMs based on API keys. Returns {label: (llm_type, model)}."""
+    llms = {}
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        llms[f"Claude ({claude_model})"] = ("anthropic", claude_model)
+    if os.environ.get("OPENAI_API_KEY"):
+        llms[f"GPT ({openai_model})"] = ("openai", openai_model)
+    return llms
+
 
 def main(
     runs: int = typer.Option(3, help="Number of runs per approach"),
-    model: str = typer.Option(
-        "claude-sonnet-4-20250514", help="Claude model to use"
-    ),
+    claude_model: str = typer.Option(DEFAULT_CLAUDE_MODEL, help="Claude model to use"),
+    openai_model: str = typer.Option(DEFAULT_OPENAI_MODEL, help="OpenAI model to use"),
 ):
     """Run the MCP vs Direct vs CLI benchmark."""
-    asyncio.run(_run(runs, model))
+    asyncio.run(_run(runs, claude_model, openai_model))
 
 
-async def _run(runs: int, model: str):
+async def _run(runs: int, claude_model: str, openai_model: str):
+    llms = _detect_llms(claude_model, openai_model)
+
+    if not llms:
+        console.print(
+            "[bold red]No API keys found.[/bold red]\n"
+            "Set ANTHROPIC_API_KEY and/or OPENAI_API_KEY in your .env file."
+        )
+        raise typer.Exit(1)
+
+    console.print(f"[bold]Detected LLMs:[/bold] {', '.join(llms.keys())}")
+    console.print(f"[bold]Runs per approach:[/bold] {runs}\n")
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         hello_path = Path(tmp_dir) / "hello.txt"
         hello_path.write_text(
@@ -50,32 +75,44 @@ async def _run(runs: int, model: str):
 
         prompt = PROMPT.format(dir=tmp_dir)
 
-        providers = {
-            "direct": DirectToolProvider(),
-            "cli": CliToolProvider(),
-            "mcp": McpToolProvider(allowed_dirs=[tmp_dir]),
-        }
+        all_results = {}
 
-        results = {}
+        for llm_label, (llm_type, model) in llms.items():
+            console.print(f"\n[bold magenta]{'=' * 60}[/bold magenta]")
+            console.print(f"[bold magenta]LLM: {llm_label}[/bold magenta]")
+            console.print(f"[bold magenta]{'=' * 60}[/bold magenta]")
 
-        for name, provider in providers.items():
-            console.print(f"\n[bold blue]Running: {name}[/bold blue]")
-            await provider.setup()
-            try:
-                results[name] = await run_benchmark(
-                    provider, prompt, model=model, runs=runs
-                )
-                console.print(
-                    f"  [green]Done[/green]"
-                    f" — avg {results[name]['avg_total_time_s']:.1f}s"
-                )
-            finally:
-                await provider.teardown()
+            providers = {
+                "direct": DirectToolProvider(),
+                "cli": CliToolProvider(),
+                "mcp": McpToolProvider(allowed_dirs=[tmp_dir]),
+            }
 
-        report = format_results(results)
-        console.print(
-            Panel(report, title="Benchmark Results", border_style="green")
-        )
+            llm_results = {}
+
+            for name, provider in providers.items():
+                console.print(f"\n  [bold blue]Running: {name}[/bold blue]")
+                await provider.setup()
+                try:
+                    # Re-create hello.txt in case a previous run modified the dir
+                    hello_path.write_text(
+                        "Hello from the benchmark! This file tests read operations."
+                    )
+                    llm_results[name] = await run_benchmark(
+                        provider, prompt, model=model, llm=llm_type, runs=runs
+                    )
+                    console.print(
+                        f"    [green]Done[/green]"
+                        f" — avg {llm_results[name]['avg_total_time_s']:.1f}s"
+                    )
+                finally:
+                    await provider.teardown()
+
+            all_results[llm_label] = llm_results
+
+        # Format and display
+        report = format_results(all_results)
+        console.print(Panel(report, title="Benchmark Results", border_style="green"))
 
         results_dir = Path("results")
         results_dir.mkdir(exist_ok=True)
