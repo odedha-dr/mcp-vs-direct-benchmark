@@ -44,6 +44,12 @@ def _extract_openai_cache(usage) -> dict:
 
 async def _run_anthropic(client, model, tool_defs, prompt, all_call_latencies, provider):
     """Run one Anthropic agentic loop."""
+    # Enable prompt caching: mark the last tool with cache_control so
+    # the entire tool-definition prefix is cached across turns.
+    cached_tools = [dict(t) for t in tool_defs]
+    if cached_tools:
+        cached_tools[-1] = {**cached_tools[-1], "cache_control": {"type": "ephemeral"}}
+
     messages = [{"role": "user", "content": prompt}]
     total_input = 0
     total_output = 0
@@ -59,7 +65,7 @@ async def _run_anthropic(client, model, tool_defs, prompt, all_call_latencies, p
         response = await client.messages.create(
             model=model,
             max_tokens=1024,
-            tools=tool_defs,
+            tools=cached_tools,
             messages=messages,
         )
         api_turns += 1

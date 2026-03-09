@@ -1,0 +1,1054 @@
+{
+  "Claude (claude-sonnet-4-20250514)": {
+    "direct": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "hello.txt",
+              "latency_ms": 0.4
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 2.0
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The directory contains a single hello.txt file with a benchmark greeting message that tests file read operations."
+              },
+              "result_preview": "Successfully wrote 113 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 0.6
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I've completed the requested tasks:\n\n1. **Listed the directory**: Found one file called `hello.txt`\n2. **Read hello.txt**: Contains the message \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt**: Written a one-line summary describing the directory contents and the hello.txt file's purpose as a benchmark test file",
+          "final_response_length": 351,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 636,
+              "output_tokens": 125,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 2,
+              "input_tokens": 776,
+              "output_tokens": 110,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 3,
+              "input_tokens": 908,
+              "output_tokens": 154,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 4,
+              "input_tokens": 1127,
+              "output_tokens": 83,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            }
+          ],
+          "total_cache_creation_tokens": 0,
+          "total_cache_read_tokens": 0
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "summary.txt\nhello.txt",
+              "latency_ms": 0.2
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 0.1
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The hello.txt file contains a greeting message from a benchmark testing read operations."
+              },
+              "result_preview": "Successfully wrote 88 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 6.7
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I've completed the requested tasks:\n\n1. **Listed the directory contents**: Found 2 files - `summary.txt` and `hello.txt`\n2. **Read hello.txt**: It contains the message \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt**: Written a one-line summary stating that the hello.txt file contains a greeting message from a benchmark testing read operations.\n\nThe summary file has been successfully created in the same directory.",
+          "final_response_length": 456,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 636,
+              "output_tokens": 127,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 2,
+              "input_tokens": 782,
+              "output_tokens": 114,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 3,
+              "input_tokens": 918,
+              "output_tokens": 150,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 4,
+              "input_tokens": 1133,
+              "output_tokens": 107,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            }
+          ],
+          "total_cache_creation_tokens": 0,
+          "total_cache_read_tokens": 0
+        }
+      ]
+    },
+    "cli": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "summary.txt\nhello.txt",
+              "latency_ms": 44.0
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 26.9
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The hello.txt file contains a simple greeting message from a benchmark testing read operations."
+              },
+              "result_preview": "Successfully wrote 95 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 30.7
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I've completed all the requested tasks:\n\n1. **Listed the directory contents**: Found 2 files - `summary.txt` and `hello.txt`\n2. **Read hello.txt**: It contained the message \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt**: Wrote a one-line summary describing that the hello.txt file contains a simple greeting message from a benchmark testing read operations.\n\nThe summary file has been successfully created with 95 bytes of content.",
+          "final_response_length": 472,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 612,
+              "output_tokens": 127,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 2,
+              "input_tokens": 758,
+              "output_tokens": 114,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 3,
+              "input_tokens": 894,
+              "output_tokens": 151,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 4,
+              "input_tokens": 1110,
+              "output_tokens": 113,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            }
+          ],
+          "total_cache_creation_tokens": 0,
+          "total_cache_read_tokens": 0
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "summary.txt\nhello.txt",
+              "latency_ms": 23.4
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 26.6
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The directory contains hello.txt which is a simple greeting file for testing read operations."
+              },
+              "result_preview": "Successfully wrote 93 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 32.3
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I've completed all the requested tasks:\n\n1. **Listed the directory contents**: Found two files - `hello.txt` and `summary.txt` (the latter was already present)\n2. **Read hello.txt**: Contains the message \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt**: Written a one-line summary describing what I found in the directory\n\nThe summary file now contains: \"The directory contains hello.txt which is a simple greeting file for testing read operations.\"",
+          "final_response_length": 488,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 612,
+              "output_tokens": 124,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 2,
+              "input_tokens": 755,
+              "output_tokens": 110,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 3,
+              "input_tokens": 887,
+              "output_tokens": 151,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 4,
+              "input_tokens": 1103,
+              "output_tokens": 113,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            }
+          ],
+          "total_cache_creation_tokens": 0,
+          "total_cache_read_tokens": 0
+        }
+      ]
+    },
+    "mcp (3 tools)": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 4.9
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 2.7
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The directory contains hello.txt with a greeting message that tests file read operations."
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 4.3
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I've completed the requested tasks:\n\n1. **Listed the files**: The directory contains two files: `hello.txt` and `summary.txt` (the latter was already there)\n2. **Read hello.txt**: It contains the message \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt**: I wrote a one-line summary describing what was found in the directory and the hello.txt file.",
+          "final_response_length": 386,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 861,
+              "output_tokens": 125,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 2,
+              "input_tokens": 1010,
+              "output_tokens": 116,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 3,
+              "input_tokens": 1148,
+              "output_tokens": 150,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 4,
+              "input_tokens": 1359,
+              "output_tokens": 97,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            }
+          ],
+          "total_cache_creation_tokens": 0,
+          "total_cache_read_tokens": 0
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 5.7
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 3.1
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The hello.txt file contains a simple greeting message indicating it's from a benchmark testing read operations."
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 5.5
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I've completed the requested tasks:\n\n1. **Listed the directory contents**: Found 2 files - hello.txt and summary.txt\n2. **Read hello.txt**: It contained the message \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt**: Added a one-line summary describing that hello.txt contains a greeting message from a benchmark testing read operations.",
+          "final_response_length": 374,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 861,
+              "output_tokens": 124,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 2,
+              "input_tokens": 1009,
+              "output_tokens": 112,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 3,
+              "input_tokens": 1143,
+              "output_tokens": 150,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 4,
+              "input_tokens": 1354,
+              "output_tokens": 88,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0
+            }
+          ],
+          "total_cache_creation_tokens": 0,
+          "total_cache_read_tokens": 0
+        }
+      ]
+    },
+    "mcp (all tools)": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 4.5
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 2.8
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The hello.txt file contains a simple greeting message indicating it's from a benchmark testing read operations."
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 8.6
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I've completed the requested tasks:\n\n1. **Listed the files** in the directory: Found `hello.txt` and `summary.txt`\n2. **Read hello.txt**: The file contains \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt**: Written a one-line summary describing that the hello.txt file contains a greeting message from a benchmark testing read operations.",
+          "final_response_length": 376,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 218,
+              "output_tokens": 128,
+              "cache_creation_input_tokens": 2270,
+              "cache_read_input_tokens": 0
+            },
+            {
+              "turn": 2,
+              "input_tokens": 370,
+              "output_tokens": 111,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 2270
+            },
+            {
+              "turn": 3,
+              "input_tokens": 503,
+              "output_tokens": 154,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 2270
+            },
+            {
+              "turn": 4,
+              "input_tokens": 718,
+              "output_tokens": 91,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 2270
+            }
+          ],
+          "total_cache_creation_tokens": 2270,
+          "total_cache_read_tokens": 6810
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 4.9
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 3.6
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The hello.txt file contains a simple greeting from a benchmark that tests read operations."
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 3.7
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "Done! Here's what I found:\n\n1. **Files in the directory**: hello.txt and summary.txt (summary.txt was already there, but I've now overwritten it)\n2. **Contents of hello.txt**: \"Hello from the benchmark! This file tests read operations.\"\n3. **Created summary.txt** with a one-line summary of the hello.txt content\n\nThe summary I wrote captures that hello.txt contains a greeting from a benchmark designed to test file read operations.",
+          "final_response_length": 433,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "input_tokens": 218,
+              "output_tokens": 126,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 2270
+            },
+            {
+              "turn": 2,
+              "input_tokens": 368,
+              "output_tokens": 111,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 2270
+            },
+            {
+              "turn": 3,
+              "input_tokens": 501,
+              "output_tokens": 151,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 2270
+            },
+            {
+              "turn": 4,
+              "input_tokens": 713,
+              "output_tokens": 109,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 2270
+            }
+          ],
+          "total_cache_creation_tokens": 0,
+          "total_cache_read_tokens": 9080
+        }
+      ]
+    }
+  },
+  "GPT (gpt-4o)": {
+    "direct": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "summary.txt\nhello.txt",
+              "latency_ms": 0.2
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 3.0
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The hello.txt file contains a greeting message indicating it is a benchmark file for testing read operations."
+              },
+              "result_preview": "Successfully wrote 109 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 6.7
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "The file `summary.txt` has been successfully written with a one-line summary of the contents of `hello.txt`.",
+          "final_response_length": 108,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 196,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 257,
+              "completion_tokens": 51,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 327,
+              "completion_tokens": 73,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 452,
+              "completion_tokens": 24,
+              "cached_tokens": 0
+            }
+          ],
+          "total_cached_tokens": 0
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "summary.txt\nhello.txt",
+              "latency_ms": 0.2
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 0.2
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The file 'hello.txt' contains a greeting message used for testing read operations."
+              },
+              "result_preview": "Successfully wrote 82 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 7.1
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "The file `hello.txt` contains a greeting message: \"Hello from the benchmark! This file tests read operations.\" I have written a one-line summary to `summary.txt`.",
+          "final_response_length": 162,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 196,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 257,
+              "completion_tokens": 51,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 327,
+              "completion_tokens": 70,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 449,
+              "completion_tokens": 36,
+              "cached_tokens": 0
+            }
+          ],
+          "total_cached_tokens": 0
+        }
+      ]
+    },
+    "cli": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "summary.txt\nhello.txt",
+              "latency_ms": 37.7
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 26.8
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The file 'hello.txt' contains a greeting and mentions it's meant to test read operations."
+              },
+              "result_preview": "Successfully wrote 89 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 30.9
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I have successfully read the contents of \"hello.txt\" and created a \"summary.txt\" file with the following one-line summary: \n\n\"The file 'hello.txt' contains a greeting and mentions it's meant to test read operations.\"",
+          "final_response_length": 216,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 184,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 245,
+              "completion_tokens": 51,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 315,
+              "completion_tokens": 72,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 439,
+              "completion_tokens": 46,
+              "cached_tokens": 0
+            }
+          ],
+          "total_cached_tokens": 0
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "summary.txt\nhello.txt",
+              "latency_ms": 25.0
+            },
+            {
+              "tool": "read_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 23.5
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The file 'hello.txt' contains a simple greeting message: 'Hello from the benchmark! This file tests read operations.'"
+              },
+              "result_preview": "Successfully wrote 117 bytes to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 28.6
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I have completed the tasks as requested. The summary of the content in \"hello.txt\" has been written to \"summary.txt\".",
+          "final_response_length": 117,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 184,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 245,
+              "completion_tokens": 51,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 315,
+              "completion_tokens": 78,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 445,
+              "completion_tokens": 27,
+              "cached_tokens": 0
+            }
+          ],
+          "total_cached_tokens": 0
+        }
+      ]
+    },
+    "mcp (3 tools)": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 4.2
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 3.5
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The file 'hello.txt' contains a greeting and mentions that it tests read operations."
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 4.0
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I have listed the files in the directory, read the content of \"hello.txt,\" and written a summary to \"summary.txt\" as requested. Here's the summary:\n\n\"The file 'hello.txt' contains a greeting and mentions that it tests read operations.\"",
+          "final_response_length": 235,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 358,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 425,
+              "completion_tokens": 52,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 497,
+              "completion_tokens": 71,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 617,
+              "completion_tokens": 51,
+              "cached_tokens": 0
+            }
+          ],
+          "total_cached_tokens": 0
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 2.3
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 2.3
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The file 'hello.txt' contains a friendly message used for testing read operations: \"Hello from the benchmark! This file tests read operations.\""
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 3.8
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I have read the file \"hello.txt\" which contains a friendly message used for testing read operations: \"Hello from the benchmark! This file tests read operations.\" I have written a summary of this information into the file \"summary.txt\".",
+          "final_response_length": 235,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 358,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 425,
+              "completion_tokens": 52,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 497,
+              "completion_tokens": 82,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 628,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            }
+          ],
+          "total_cached_tokens": 0
+        }
+      ]
+    },
+    "mcp (all tools)": {
+      "avg_api_turns": 4.0,
+      "avg_tool_calls": 3.0,
+      "traces": [
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 4.5
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 3.2
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The file 'hello.txt' contains a greeting message stating its purpose as a benchmark test for read operations."
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 4.0
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "The file `hello.txt` contains a greeting message stating its purpose as a benchmark test for read operations. I have written a one-line summary of this content to `summary.txt`.",
+          "final_response_length": 177,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 1220,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 1287,
+              "completion_tokens": 52,
+              "cached_tokens": 1152
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 1359,
+              "completion_tokens": 75,
+              "cached_tokens": 1280
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 1483,
+              "completion_tokens": 37,
+              "cached_tokens": 1408
+            }
+          ],
+          "total_cached_tokens": 3840
+        },
+        {
+          "api_turns": 4,
+          "tool_calls": [
+            {
+              "tool": "list_directory",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0"
+              },
+              "result_preview": "[FILE] hello.txt\n[FILE] summary.txt",
+              "latency_ms": 2.2
+            },
+            {
+              "tool": "read_text_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/hello.txt"
+              },
+              "result_preview": "Hello from the benchmark! This file tests read operations.",
+              "latency_ms": 2.3
+            },
+            {
+              "tool": "write_file",
+              "input": {
+                "path": "/private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+                "content": "The file 'hello.txt' contains a message for testing read operations: 'Hello from the benchmark!'."
+              },
+              "result_preview": "Successfully wrote to /private/var/folders/2b/m_sbkpxj4p90tzbv240jz51m0000gp/T/tmp7vpjs2_0/summary.txt",
+              "latency_ms": 7.7
+            }
+          ],
+          "total_tool_calls": 3,
+          "final_response_preview": "I successfully read the contents of `hello.txt`, which contains the message: \"Hello from the benchmark! This file tests read operations.\" A summary of this content has been written to `summary.txt`.",
+          "final_response_length": 198,
+          "cache_per_turn": [
+            {
+              "turn": 1,
+              "prompt_tokens": 1220,
+              "completion_tokens": 48,
+              "cached_tokens": 0
+            },
+            {
+              "turn": 2,
+              "prompt_tokens": 1287,
+              "completion_tokens": 52,
+              "cached_tokens": 1152
+            },
+            {
+              "turn": 3,
+              "prompt_tokens": 1359,
+              "completion_tokens": 75,
+              "cached_tokens": 1280
+            },
+            {
+              "turn": 4,
+              "prompt_tokens": 1483,
+              "completion_tokens": 41,
+              "cached_tokens": 1408
+            }
+          ],
+          "total_cached_tokens": 3840
+        }
+      ]
+    }
+  }
+}
